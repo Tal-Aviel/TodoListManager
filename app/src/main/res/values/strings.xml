@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">TodoListManager</string>
+    <string name="add">Add</string>
+    <string-array name="cmenu">
+        <item>Delete Item</item>
+    </string-array>
+</resources>
