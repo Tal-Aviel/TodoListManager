@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">TodoListManager</string>
     <string name="add">Add</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="addNewItemLabel">Add New Item</string>
+    <string name="dlgIntentTitle">title</string>
+    <string name="dlgIntentDueDate">dueDate</string>
+    <string name="menuItemDelete">Delete Item</string>
+    <string name="startDialPrefix">"call "</string>
     <string-array name="cmenu">
         <item>Delete Item</item>
     </string-array>
