@@ -1,57 +1,49 @@
 package il.ac.huji.todolist;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.graphics.Color;
-import android.view.LayoutInflater;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.List;
+import java.util.Date;
 
-public class TodoListAdapter extends ArrayAdapter<TodoItem> {
+public class TodoListAdapter extends SimpleCursorAdapter {
 
     private Context context;
 
-    public TodoListAdapter(TodoListManagerActivity todoListManagerActivity, int simple_list_item_1, List<TodoItem> myStringArray) {
-        super(todoListManagerActivity, simple_list_item_1, myStringArray);
+    public TodoListAdapter(TodoListManagerActivity todoListManagerActivity, int simple_list_item_1, Cursor cursor) {
+        super(todoListManagerActivity, simple_list_item_1, cursor, new String[]{RepositoryConsts.FIELD_TODOS_TITLE, RepositoryConsts.FIELD_TODOS_DUE_DATE}, new int[]{R.id.txtTodoTitle, R.id.txtTodoDueDate}, 0);
+
+        setViewBinder(new ViewBinder() {
+            @Override
+            public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+                Date dueDate = new Date(cursor.getLong(cursor.getColumnIndex(RepositoryConsts.FIELD_TODOS_DUE_DATE)));
+                if (view.getId() == R.id.txtTodoDueDate)
+                {
+                    TextView tv = (TextView)view;
+                    DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
+                    tv.setText(dateFormat.format(dueDate));
+                    colorView((TextView)view, dueDate);
+                    return true;
+                }
+                if(view.getId() == R.id.txtTodoTitle) {
+                    colorView((TextView)view, dueDate);
+                }
+                return false;
+            }
+        });
         this.context = todoListManagerActivity;
     }
 
-    @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
-        View vi = convertView;
-        TodosHolder holder;
-        LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        if (convertView == null) {
-            vi = inflater.inflate(R.layout.todo_item, null);
-            holder = new TodosHolder();
-            holder.title  = (TextView) vi.findViewById(R.id.txtTodoTitle);
-            holder.dueDate  = (TextView) vi.findViewById(R.id.txtTodoDueDate);
-            vi.setTag(holder);
+    private static void colorView(TextView view, Date dueDate) {
+        if (new Date().compareTo(dueDate) > 0) {
+            view.setTextColor(Color.RED);
         } else {
-            holder = (TodosHolder) vi.getTag();
+            view.setTextColor(Color.BLACK);
         }
-        TextView itemTitle = holder.title;
-        TextView itemDate = holder.dueDate;
-
-        TodoItem item = getItem(position);
-        itemTitle.setText(item.getTitle());
-
-        DateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-        itemDate.setText(dateFormat.format(item.getDueDate()));
-
-        if (item.isLate()) {
-            itemDate.setTextColor(Color.RED);
-            itemTitle.setTextColor(Color.RED);
-        } else {
-            itemDate.setTextColor(Color.BLACK);
-            itemTitle.setTextColor(Color.BLACK);
-        }
-
-        return vi;
     }
 }
