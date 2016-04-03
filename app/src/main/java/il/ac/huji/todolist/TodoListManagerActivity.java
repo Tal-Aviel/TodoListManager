@@ -82,9 +82,9 @@ public class TodoListManagerActivity extends AppCompatActivity {
         Date dueDate = (Date) extras.get(getString(R.string.dlgIntentDueDate));
 
         ContentValues values = new ContentValues();
-        values.put("title", title);
-        values.put("due_date", dueDate.getTime());
-        db.insertOrThrow("todos", null, values);
+        values.put(RepositoryConsts.FIELD_TODOS_TITLE, title);
+        values.put(RepositoryConsts.FIELD_TODOS_DUE_DATE, dueDate.getTime());
+        db.insertOrThrow(RepositoryConsts.TABLE_TODOS, null, values);
 
         reQuery();
     }
