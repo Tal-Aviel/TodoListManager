@@ -61,7 +61,7 @@ public class TodoListManagerActivity extends AppCompatActivity {
     }
 
     private void reQuery() {
-        adapter.swapCursor(db.rawQuery("select _id, title, due_date from todos", null));
+        adapter.swapCursor(db.rawQuery("select _id, title, due_date from " + RepositoryConsts.TABLE_TODOS, null));
     }
 
     @Override
