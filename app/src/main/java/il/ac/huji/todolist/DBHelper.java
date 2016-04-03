@@ -7,11 +7,13 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DBHelper extends SQLiteOpenHelper {
 
     public DBHelper(Context context) {
-        super(context, "todo_db", null, 1);
+        super(context, "todo_db", null, 6);
     }
 
     @Override
     public void onCreate(SQLiteDatabase db) {
+        // backward compatibility :D
+        db.execSQL("DROP TABLE IF EXISTS " + RepositoryConsts.TABLE_TODOS);
         db.execSQL(
                 "CREATE TABLE " + RepositoryConsts.TABLE_TODOS + " (" + RepositoryConsts.FIELD_TODOS_ID + " integer primary key autoincrement, " +
                         RepositoryConsts.FIELD_TODOS_TITLE + " string, " +
@@ -21,7 +23,6 @@ public class DBHelper extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-        db.execSQL("TRUNCATE TABLE " + RepositoryConsts.TABLE_TODOS);
         onCreate(db);
     }
 }

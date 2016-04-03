@@ -6,8 +6,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.database.Cursor;
+import android.database.MergeCursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
@@ -21,6 +23,7 @@ import java.util.Date;
 public class TodoListManagerActivity extends AppCompatActivity {
 
     public static final int ADD_NEW_ITEM_REQUEST_CODE = 1;
+    private static final int CHUNK_SIZE = 1000;
     private TodoListAdapter adapter;
     private Context context = this;
     private ListView lstTodoItems;
@@ -61,7 +64,31 @@ public class TodoListManagerActivity extends AppCompatActivity {
     }
 
     private void reQuery() {
-        adapter.swapCursor(db.rawQuery("select _id, title, due_date from " + RepositoryConsts.TABLE_TODOS, null));
+        AsyncTask<Void, Cursor, Void> t = new AsyncTask<Void, Cursor, Void>() {
+            @Override
+            protected Void doInBackground(Void... params) {
+                Cursor mergedCursor = null;
+                Cursor chunkCursor;
+                int chunkNumber = 0;
+                do {
+                    chunkCursor = db.rawQuery("select _id,title,due_date from " + RepositoryConsts.TABLE_TODOS + " order by _id asc limit " + chunkNumber*CHUNK_SIZE + "," + CHUNK_SIZE, null);
+                    if (mergedCursor == null) {
+                        mergedCursor = chunkCursor;
+                    } else {
+                        mergedCursor = new MergeCursor(new Cursor[]{mergedCursor, chunkCursor});
+                    }
+                    publishProgress(mergedCursor);
+                    ++chunkNumber;
+                } while(chunkCursor.getCount() > 0);
+                return null;
+            }
+
+            @Override
+            protected void onProgressUpdate(Cursor... c) {
+                adapter.swapCursor(c[0]);
+            }
+        };
+        t.execute();
     }
 
     @Override
